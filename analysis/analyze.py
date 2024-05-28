@@ -86,7 +86,8 @@ bhad_phi  = std.vector('double')()
 #bhad_mass = std.vector('double')()
 bhad_SVx  = std.vector('double')()
 bhad_SVy  = std.vector('double')()
-bhad_SVz  = std.vector('double')() #BHadron variables
+bhad_SVz  = std.vector('double')()
+bhad_evtnum  = std.vector('int')()#BHadron variables
 
 outtree_sig.Branch("bhad_pt", bhad_pt)
 outtree_sig.Branch("bhad_eta", bhad_eta)
@@ -95,6 +96,7 @@ outtree_sig.Branch("bhad_phi", bhad_phi)
 outtree_sig.Branch("bhad_SVx", bhad_SVx)
 outtree_sig.Branch("bhad_SVy", bhad_SVy)
 outtree_sig.Branch("bhad_SVz", bhad_SVz)
+outtree_sig.Branch("bhad_evtnum", bhad_evtnum)
 
 outtree_sig.Branch("ip2d", ip2d_sig)
 outtree_sig.Branch("ip3d", ip3d_sig)
@@ -126,6 +128,7 @@ outtree_bkg.Branch("bhad_phi", bhad_phi)
 outtree_bkg.Branch("bhad_SVx", bhad_SVx)
 outtree_bkg.Branch("bhad_SVy", bhad_SVy)
 outtree_bkg.Branch("bhad_SVz", bhad_SVz)
+outtree_bkg.Branch("bhad_evtnum", bhad_evtnum)
 
 outtree_bkg.Branch("ip2d", ip2d_bkg)
 outtree_bkg.Branch("ip3d", ip3d_bkg)
@@ -238,10 +241,12 @@ for i, evt in enumerate(tree):
             bhad_SVx.clear()
             bhad_SVy.clear()
             bhad_SVz.clear()
+            bhad_evtnum.clear()
 
             bhad_pt.push_back(evt.BHadron_pt[bhad])
             bhad_eta.push_back(evt.BHadron_eta[bhad])
             bhad_phi.push_back(evt.BHadron_phi[bhad])
+            bhad_evtnum.push_back(i)
             #bhad_mass.push_back(evt.BHadron_mass[bhad])
             #bhad_SVx.push_back(evt.BHadron_SVx[bhad])
             #bhad_SVy.push_back(evt.BHadron_SVy[bhad])

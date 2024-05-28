@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description="Convert signal and bkg files to nu
 parser.add_argument("-s", "--signal", default="", help="Name of signal ROOT file")
 parser.add_argument("-b", "--background", default="", help="Name of background ROOT file")
 parser.add_argument("-o", "--out", default="", help="Name of output dataframe")
+parser.add_argument("-n", "--numbkg", default=20, help="Number of bkg tracks per b-hadron")
 
 args = parser.parse_args()
 
@@ -21,7 +22,7 @@ args = parser.parse_args()
 #bkg_file = TFile(args.background, 'READ')
 #bkgtree = bkg_file.Get("bkgtree")
 
-bhad_branches = ["bhad_pt", "bhad_eta", "bhad_phi", "bhad_SVx", "bhad_SVy", "bhad_SVz"]
+bhad_branches = ["bhad_pt", "bhad_eta", "bhad_phi", "bhad_SVx", "bhad_SVy", "bhad_SVz", "bhad_evtnum"]
 trk_branches = ["ip2d", "ip3d", "ip2dsig", "ip3dsig", "pt", "eta", "phi"]
 
 branches = bhad_branches + trk_branches
@@ -67,25 +68,25 @@ for i in range(len(sigout['bhad_pt'])):
         continue
     for j in range(len(sigout['pt'][i])):
         trks_sig.append([sigout['ip2d'][i][j], sigout['ip3d'][i][j],sigout['ip2dsig'][i][j], sigout['ip3dsig'][i][j],sigout['pt'][i][j],sigout['eta'][i][j],sigout['phi'][i][j],
-                         sigout['bhad_pt'][i][0], sigout['bhad_eta'][i][0], sigout['bhad_phi'][i][0], sigout['bhad_SVx'][i][0], sigout['bhad_SVy'][i][0], sigout['bhad_SVz'][i][0], 1, i])
+                         sigout['bhad_pt'][i][0], sigout['bhad_eta'][i][0], sigout['bhad_phi'][i][0], sigout['bhad_SVx'][i][0], sigout['bhad_SVy'][i][0], sigout['bhad_SVz'][i][0], 1, i, sigout['bhad_evtnum'][i][0]])
 
 print("Finished signal tracks")
 for i in range(len(bkgout['bhad_pt'])):
-    if len(bkgout['pt'][i]) > 20:
-        sampled_indices = random.sample(range(len(bkgout['pt'][i])), 20)
+    if len(bkgout['pt'][i]) > int(args.numbkg):
+        sampled_indices = random.sample(range(len(bkgout['pt'][i])), int(args.numbkg))
     else:
         sampled_indices = range(len(bkgout['pt'][i]))
 
     for j in sampled_indices:
         trks_bkg.append([bkgout['ip2d'][i][j], bkgout['ip3d'][i][j],bkgout['ip2dsig'][i][j], bkgout['ip3dsig'][i][j],bkgout['pt'][i][j],bkgout['eta'][i][j],bkgout['phi'][i][j],
-                     bkgout['bhad_pt'][i][0], bkgout['bhad_eta'][i][0], bkgout['bhad_phi'][i][0], bkgout['bhad_SVx'][i][0], bkgout['bhad_SVy'][i][0], bkgout['bhad_SVz'][i][0], 0, i])
+                     bkgout['bhad_pt'][i][0], bkgout['bhad_eta'][i][0], bkgout['bhad_phi'][i][0], bkgout['bhad_SVx'][i][0], bkgout['bhad_SVy'][i][0], bkgout['bhad_SVz'][i][0], 0, i, bkgout['bhad_evtnum'][i][0]])
 
 print("Finished per-track data creation")
 
 
 #Creating and saving dataframe
 columns = ['trks_ip2d', 'trks_ip3d', 'trks_ip2dsig', 'trks_ip3dsig', 'trks_pt', 'trks_eta', 'trks_phi',
-           'bhad_pt', 'bhad_eta', 'bhad_phi', 'bhad_SVx', 'bhad_SVy', 'bhad_SVz', 'is_signal', "bhad_num"]
+           'bhad_pt', 'bhad_eta', 'bhad_phi', 'bhad_SVx', 'bhad_SVy', 'bhad_SVz', 'is_signal', "bhad_num", 'evt_num']
 
 combined_tracks = trks_sig + trks_bkg
 
@@ -95,5 +96,5 @@ df = pd.DataFrame(combined_tracks, columns=columns)
 
 print("Saving dataframe")
 
-df.to_csv(args.out+".csv", index=False)
+df.to_csv(args.out, index=False)
 
